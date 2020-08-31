@@ -1,201 +1,158 @@
-      Apache License
-                       Version 2.0, January 2004
-                    http://www.apache.org/licenses/
+# reaper
 
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Reaper is a tool used to assess a GitHub repository in the form of a score. It
+considers a number of different *attributes* in order to perform a thorough
+assessment.
 
-1. Definitions.
+Together with a database of metadata provided by the [GHTorrent](http://ghtorrent.org/) project, *reaper* considers both contextual information such as commit history as well
+as the contents of the repository itself.
 
-  "License" shall mean the terms and conditions for use, reproduction,
-  and distribution as defined by Sections 1 through 9 of this document.
+## Installation
 
-  "Licensor" shall mean the copyright owner or entity authorized by
-  the copyright owner that is granting the License.
+The projects runs on systems with `python3`. There are a number of python
+libraries that the code needs in order to execute. To install them, simply run
+`pip install -r requirements.txt` (or `pip3` if your system does not have python3 set
+as the default.)
 
-  "Legal Entity" shall mean the union of the acting entity and all
-  other entities that control, are controlled by, or are under common
-  control with that entity. For the purposes of this definition,
-  "control" means (i) the power, direct or indirect, to cause the
-  direction or management of such entity, whether by contract or
-  otherwise, or (ii) ownership of fifty percent (50%) or more of the
-  outstanding shares, or (iii) beneficial ownership of such entity.
+## Interface
 
-  "You" (or "Your") shall mean an individual or Legal Entity
-  exercising permissions granted by this License.
+The main interface that should be used to run reaper is the Python script called 
+`batch_score.py`. This script should be called with a set of parameters that 
+specify where the datasource can be found, what projects need to be analyzed,
+etc. 
 
-  "Source" form shall mean the preferred form for making modifications,
-  including but not limited to software source code, documentation
-  source, and configuration files.
+Additionally there is a script called `score_repo.py`, however at the moment it 
+is outdated and cannot be used to score repos. 
 
-  "Object" form shall mean any form resulting from mechanical
-  transformation or translation of a Source form, including but
-  not limited to compiled object code, generated documentation,
-  and conversions to other media types.
+### Usage
 
-  "Work" shall mean the work of authorship, whether in Source or
-  Object form, made available under the License, as indicated by a
-  copyright notice that is included in or attached to the work
-  (an example is provided in the Appendix below).
+`batch_score.py` can be called as follows: 
 
-  "Derivative Works" shall mean any work, whether in Source or Object
-  form, that is based on (or derived from) the Work and for which the
-  editorial revisions, annotations, elaborations, or other modifications
-  represent, as a whole, an original work of authorship. For the purposes
-  of this License, Derivative Works shall not include works that remain
-  separable from, or merely link (or bind by name) to the interfaces of,
-  the Work and Derivative Works thereof.
+`batch_score.py -c <config> -r <repos_path> -m <manifest> -s <sample_file>`
 
-  "Contribution" shall mean any work of authorship, including
-  the original version of the Work and any modifications or additions
-  to that Work or Derivative Works thereof, that is intentionally
-  submitted to Licensor for inclusion in the Work by the copyright owner
-  or by an individual or Legal Entity authorized to submit on behalf of
-  the copyright owner. For the purposes of this definition, "submitted"
-  means any form of electronic, verbal, or written communication sent
-  to the Licensor or its representatives, including but not limited to
-  communication on electronic mailing lists, source code control systems,
-  and issue tracking systems that are managed by, or on behalf of, the
-  Licensor for the purpose of discussing and improving the Work, but
-  excluding communication that is conspicuously marked or otherwise
-  designated in writing by the copyright owner as "Not a Contribution."
+Where:
+* `<config>`: Is an instance of `config.json`.
+* `<repos_path>`: Is the path to a directory where reaper can check out the 
+source files of a project. 
+* `<manifest>`: Is an instance of `manifest.json` (which can be found in this 
+repository) containing information on what attributes should be executed.
+* `<sample_file>`: A list of GHTorrent project ids that should be analyzed, 
+newline seperated. 
 
-  "Contributor" shall mean Licensor and any individual or Legal Entity
-  on behalf of whom a Contribution has been received by Licensor and
-  subsequently incorporated within the Work.
+### config.json
 
-2. Grant of Copyright License. Subject to the terms and conditions of
-  this License, each Contributor hereby grants to You a perpetual,
-  worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-  copyright license to reproduce, prepare Derivative Works of,
-  publicly display, publicly perform, sublicense, and distribute the
-  Work and such Derivative Works in Source or Object form.
+This file is responsible for controlling various aspects of the system. There
+are two high level keys that can be altered, `options` and `attributes`.
 
-3. Grant of Patent License. Subject to the terms and conditions of
-  this License, each Contributor hereby grants to You a perpetual,
-  worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-  (except as stated in this section) patent license to make, have made,
-  use, offer to sell, sell, import, and otherwise transfer the Work,
-  where such license applies only to those patent claims licensable
-  by such Contributor that are necessarily infringed by their
-  Contribution(s) alone or by combination of their Contribution(s)
-  with the Work to which such Contribution(s) was submitted. If You
-  institute patent litigation against any entity (including a
-  cross-claim or counterclaim in a lawsuit) alleging that the Work
-  or a Contribution incorporated within the Work constitutes direct
-  or contributory patent infringement, then any patent licenses
-  granted to You under this License for that Work shall terminate
-  as of the date such litigation is filed.
+#### `options`
 
-4. Redistribution. You may reproduce and distribute copies of the
-  Work or Derivative Works thereof in any medium, with or without
-  modifications, and in Source or Object form, provided that You
-  meet the following conditions:
+| Key | Values | Description |
+| --- |:------:| -----------:|
+| `threshold` | Positive Numbers | Defines the threshold by which the system considers a repository to contain a software project. |
+| `persistResult` | true or false | Whether the granular results should be saved to the specified datasource. |
+| `datasource` | object | Settings for connecting to the GHTorrent database, see description below. |
+| `github_tokens` | list | List of GitHub OAuth tokens to be used for authentication for rate limiting purposes. |
 
-  (a) You must give any other recipients of the Work or
-      Derivative Works a copy of this License; and
+##### `datasource`
 
-  (b) You must cause any modified files to carry prominent notices
-      stating that You changed the files; and
+[GHTorrent](http://ghtorrent.org/) is a research project that aims to collect
+and store information produced by the public GitHub events feed. The initial
+implementation of `score_repo.py` relies on this information being accessible.
 
-  (c) You must retain, in the Source form of any Derivative Works
-      that You distribute, all copyright, patent, trademark, and
-      attribution notices from the Source form of the Work,
-      excluding those notices that do not pertain to any part of
-      the Derivative Works; and
+Load a dump of the GHTorrent data set into MySQL or MariaDB (binary compatible
+as of this writing), copy the `config.json.sample` file to `config.json` and
+edit the appropriate parameters under the `options => datasource` key.
 
-  (d) If the Work includes a "NOTICE" text file as part of its
-      distribution, then any Derivative Works that You distribute must
-      include a readable copy of the attribution notices contained
-      within such NOTICE file, excluding those notices that do not
-      pertain to any part of the Derivative Works, in at least one
-      of the following places: within a NOTICE text file distributed
-      as part of the Derivative Works; within the Source form or
-      documentation, if provided along with the Derivative Works; or,
-      within a display generated by the Derivative Works, if and
-      wherever such third-party notices normally appear. The contents
-      of the NOTICE file are for informational purposes only and
-      do not modify the License. You may add Your own attribution
-      notices within Derivative Works that You distribute, alongside
-      or as an addendum to the NOTICE text from the Work, provided
-      that such additional attribution notices cannot be construed
-      as modifying the License.
+#### `peristResult`
 
-  You may add Your own copyright statement to Your modifications and
-  may provide additional or different license terms and conditions
-  for use, reproduction, or distribution of Your modifications, or
-  for any such Derivative Works as a whole, provided Your use,
-  reproduction, and distribution of the Work otherwise complies with
-  the conditions stated in this License.
+If persist results is enabled a database table needs to exist to which reaper can 
+write results. This table should be named `reaper_results` and should contain at 
+least a column for project ids named `project_id`, and a column to store the score 
+for a repository named `score`. Additionally, there should be a column for every 
+attribute that you want to store.
 
-5. Submission of Contributions. Unless You explicitly state otherwise,
-  any Contribution intentionally submitted for inclusion in the Work
-  by You to the Licensor shall be under the terms and conditions of
-  this License, without any additional terms or conditions.
-  Notwithstanding the above, nothing herein shall supersede or modify
-  the terms of any separate license agreement you may have executed
-  with Licensor regarding such Contributions.
+For instance, to create this table in MySQL the following table create statement
+can be used:
 
-6. Trademarks. This License does not grant permission to use the trade
-  names, trademarks, service marks, or product names of the Licensor,
-  except as required for reasonable and customary use in describing the
-  origin of the Work and reproducing the content of the NOTICE file.
+```
+CREATE TABLE `reaper_results` (
+  `project_id` int(11) NOT NULL,
+  `architecture` double DEFAULT NULL,
+  `community` double DEFAULT NULL,
+  `continuous_integration` double DEFAULT NULL,
+  `documentation` double DEFAULT NULL,
+  `history` double DEFAULT NULL,
+  `license` double DEFAULT NULL,
+  `management` double DEFAULT NULL,
+  `project_size` double DEFAULT NULL,
+  `repository_size` double DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `stars` double DEFAULT NULL,
+  `unit_test` double DEFAULT NULL,
+  `score` double DEFAULT NULL,
+  PRIMARY KEY (`project_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+```
 
-7. Disclaimer of Warranty. Unless required by applicable law or
-  agreed to in writing, Licensor provides the Work (and each
-  Contributor provides its Contributions) on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-  implied, including, without limitation, any warranties or conditions
-  of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-  PARTICULAR PURPOSE. You are solely responsible for determining the
-  appropriateness of using or redistributing the Work and assume any
-  risks associated with Your exercise of permissions under this License.
+#### `attributes`
 
-8. Limitation of Liability. In no event and under no legal theory,
-  whether in tort (including negligence), contract, or otherwise,
-  unless required by applicable law (such as deliberate and grossly
-  negligent acts) or agreed to in writing, shall any Contributor be
-  liable to You for damages, including any direct, indirect, special,
-  incidental, or consequential damages of any character arising as a
-  result of this License or out of the use or inability to use the
-  Work (including but not limited to damages for loss of goodwill,
-  work stoppage, computer failure or malfunction, or any and all
-  other commercial damages or losses), even if such Contributor
-  has been advised of the possibility of such damages.
+The system is designed as a number of plugins that all have a chance to analyze
+a given repository (both metadata as well as contents). A number of provided
+attributes are apart of the base distribution of the system, but more can easily
+be added.
 
-9. Accepting Warranty or Additional Liability. While redistributing
-  the Work or Derivative Works thereof, You may choose to offer,
-  and charge a fee for, acceptance of support, warranty, indemnity,
-  or other liability obligations and/or rights consistent with this
-  License. However, in accepting such obligations, You may act only
-  on Your own behalf and on Your sole responsibility, not on behalf
-  of any other Contributor, and only if You agree to indemnify,
-  defend, and hold each Contributor harmless for any liability
-  incurred by, or claims asserted against, such Contributor by reason
-  of your accepting any such warranty or additional liability.
+In order for an attribute to be executed, it must be listed under the
+`attributes` key in the configuration file.
 
-END OF TERMS AND CONDITIONS
+An example entry looks like the following:
 
-APPENDIX: How to apply the Apache License to your work.
+```json
+{
+  "name": "architecture",
+  "dependencies": [
+    "ctags"
+  ],
+  "enabled": true,
+  "weight": 50,
+  "options": {
+  }
+}
+```
 
-  To apply the Apache License to your work, attach the following
-  boilerplate notice, with the fields enclosed by brackets "{}"
-  replaced with your own identifying information. (Don't include
-  the brackets!)  The text should be enclosed in the appropriate
-  comment syntax for the file format. We also recommend that a
-  file or class name and description of purpose be included on the
-  same "printed page" as the copyright notice for easier
-  identification within third-party archives.
+`name` refers to the name of the attribute as it appears under the `attribute/`
+directory. `dependencies` is a list of system utilities that the attribute
+implementation relies on in order to function. `enabled` controls whether the
+attribute will be considered during the scoring of the repository. `weight`
+allows the bias of the attribute to be fine tuned in order to adjust its effect
+on the final score. Finally, `options` are specific options for each particular
+attribute implementation.
 
-Copyright 2015 RepoReapers Contributors
+## Attribute Development
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+In order to add your own attribute plugin to the system, there are few things
+that must be done. First, add an attribute entry as described in the above
+section that refers to your specific attribute.
 
-   http://www.apache.org/licenses/LICENSE-2.0
+Secondly, create the appropriately named directory under `attributes/` along
+with a `main.py`. Inside of this, the following function signature should be
+used to kickoff the execution of the plugin:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+```python
+def run(project_id, repo_path, cursor, **options):
+  # Implementation goes here.
+```
+
+Check the doc block for details on what each parameter provides in terms of
+functionality. Attribute implementations should return a tuple of two values:
+the binary result of execution and the raw result of execution. The binary
+result should be True or False and the raw result should be a real number that
+is the raw calculation made by the plugin. In the case of purely binary results,
+do something like `return result, int(result)`.
+
+Additionally, there is the option of initializing the plugin. To take advantage
+of initialization, add the following function signature to `main.py`:
+
+```python
+def init(cursor, **options):
+  # Implementation goes here.
+```
