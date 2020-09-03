@@ -22,6 +22,7 @@ LICENSE_PATTERNS = [
 
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: LICENSE -----")
     cursor.execute('''
         SELECT
             url
@@ -30,24 +31,40 @@ def run(project_id, repo_path, cursor, **options):
         WHERE
             id = {0}
         '''.format(project_id))
-
+    git_tokens = options['tokens']
     record = cursor.fetchone()
-    full_url = record[0]
-    json_response = url_to_json(full_url, headers={
-            'Accept': 'application/vnd.github.drax-preview+json'
-        }
-    )
-
+    full_url = record[0]    
+    token_avail = False
+    for user_name in git_tokens:
+        if(token_avail == True):
+            break
+        else:
+            try:
+                json_response = url_to_json(full_url, headers={
+                        'Accept': 'application/vnd.github.drax-preview+json'
+                    }, authentication=[user_name,git_tokens[user_name]]
+                )
+                token_avail = True
+            except:
+                continue
+    if(token_avail == False):
+        try:
+            print("[Reg: License]Tokens didn't work! Trying out without token...")
+            json_response = url_to_json(full_url, headers={
+                            'Accept': 'application/vnd.github.drax-preview+json'
+                        }, authentication=[]
+                    ) 
+            print('Fetch Successful')
+        except:
+            print("[Reg: License]Couldn't fetch data from API! Trying out search for patterns in the license files..")
     result = True if 'license' in json_response \
-                     and json_response['license'] else False
-
+        and json_response['license'] else False
     if not result:
         for pattern in LICENSE_PATTERNS:
             if utilities.search(pattern, repo_path, ignorecase=True):
                 result = True
                 break
-    print("----- METRIC: LICENSE -----")
-    print('result: ',result)
+    print('License: ',result)
     return result, result
 
 if __name__ == '__main__':

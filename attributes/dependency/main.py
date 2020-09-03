@@ -12,6 +12,7 @@ QUERY = '''
 SELECT name FROM projects WHERE id={0}
 '''
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: DEPENDENCY -----")
     num_core_commits = 0
     dependency_ratio_total = 0
     totalLines = 0
@@ -57,7 +58,7 @@ def run(project_id, repo_path, cursor, **options):
                 numberOfMonths = []
                 end = datetime(year[0],month[0],day[0])
                 for a in range(1,length-1):
-                    n_months = 0
+                    n_months = -1
                     start = datetime(year[length-1-a],month[length-1-a],day[length-1-a])
                     for d in arrow.Arrow.range('month',start,end):
                         n_months += 1
@@ -86,8 +87,7 @@ def run(project_id, repo_path, cursor, **options):
     threshold = options['threshold']
     if(totalLines > 1):
         dependency_ratio_total = float(dependency_ratio_total)/(totalLines*1.0)
-    print("----- METRIC: DEPENDENCY -----")
-    print('dependency_ratio_total: ',dependency_ratio_total)  
+    print('Dependency Score: ',dependency_ratio_total)  
     return (dependency_ratio_total >= threshold, dependency_ratio_total)
 if __name__ == '__main__':
     print('Attribute plugins are not meant to be executed directly.')

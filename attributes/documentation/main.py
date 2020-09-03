@@ -18,6 +18,7 @@ Updated:
 
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: DOCUMENTATION -----")
     ratio = 0
     # Dictionary of language => metrics dictionary
     util = utilities.get_loc(repo_path)
@@ -36,9 +37,8 @@ def run(project_id, repo_path, cursor, **options):
 
     attr_threshold = options['threshold']
     attr_pass = (ratio >= attr_threshold)
-    print("----- METRIC: DOCUMENTATION -----")
     #print(repo_path)
-    print('ratio: ',ratio)
+    print('Documentation: ',ratio)
     return (attr_pass, ratio)
 
 if __name__ == '__main__':

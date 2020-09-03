@@ -111,8 +111,7 @@ def main():
         globaloptions = {
             'today': config['options']['today'],
             'timeout': config['options']['timeout'],
-            'user_name': config['options']['user_name'],
-            'github_tokens': config['options']['github_tokens']
+            'tokens': config['options']['tokens']
         }
         attributes = Attributes(
             manifest['attributes'], database, args.cleanup, args.key_string,

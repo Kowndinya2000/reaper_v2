@@ -4,16 +4,33 @@ from lib import utilities
 
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: STARS -----")
     threshold = options.get('threshold', 0)
-
     cursor.execute('SELECT url FROM projects WHERE id = {}'.format(project_id))
     record = cursor.fetchone()
     full_url = record[0]
-    page = requests.get(full_url).json()["stargazers_count"]
+    git_tokens = options['tokens']
+    token_avail = 0
+    for user_name in git_tokens:
+        if(token_avail == True):
+            break
+        else:
+            try: 
+                page = requests.get(full_url,auth=(user_name,git_tokens[user_name])).json()["stargazers_count"]
+                token_avail = True
+            except:
+                continue
+    if(token_avail == False):
+        try:
+            print("[Reg: Stargazers Count]Tokens didn't work! Trying out without token...")
+            page = requests.get(full_url).json()["stargazers_count"]
+            print('Fetch Successful')
+        except:
+            print("[Reg: Stargazers Count]Couldn't fetch data..")
+            page = None
     rresult = page
     bresult = True if rresult is not None and rresult >= threshold else False
-    print("----- METRIC: STARS -----")
-    print('stars: ',rresult,', ',bresult)
+    print('stars: ',rresult)
     return bresult, rresult
 
 if __name__ == '__main__':

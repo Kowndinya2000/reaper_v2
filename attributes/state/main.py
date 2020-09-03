@@ -20,7 +20,6 @@ QUERY = '''
 SELECT name FROM projects WHERE id={0}
 '''
 def getLastCommitDate(project_id,cursor):   
-    #cursor = ghtorrentDb.cursor()
     cursor.execute(QUERY.format(project_id))
     repoName = cursor.fetchone()[0]
     os.chdir("path/"+str(project_id)+"/")
@@ -36,6 +35,7 @@ def getLastCommitDate(project_id,cursor):
     return page
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: STATE -----")
     bresult = False
     rresult = 'dormant'
     last_commit_date = getLastCommitDate(project_id,cursor)
@@ -46,12 +46,10 @@ def run(project_id, repo_path, cursor, **options):
         last_commit_date_formatted = tuple(map(int,last_commit_date.split("-")))
         delta = dateutil.relativedelta(today, datetime(*last_commit_date_formatted))
         threshold = utilities.parse_datetime_delta(options['threshold'])
-        #print('db name',options['datasource']['database'])
         bresult = delta <= threshold
         if bresult:
             rresult = 'active'
-    print("----- METRIC: STATE -----")
-    print('state: ',rresult,",",bresult)
+    print('State: ',rresult)
     return bresult, rresult
 
 if __name__ == '__main__':

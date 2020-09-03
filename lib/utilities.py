@@ -211,7 +211,7 @@ def search(
     return files
 
 
-def url_to_json(url, headers={}):
+def url_to_json(url, headers={},authentication=[]):
     """Returns the JSON response from the url.
 
     Args:
@@ -220,14 +220,19 @@ def url_to_json(url, headers={}):
     Returns:
         dict: JSON of the response or empty dict on error.
     """
-    request = urllib.request.Request(
+    
+    if(len(authentication) == 2):
+        request = urllib.request.Request(
+            url,auth=(authentication[0],authentication[1]),
+            headers=headers
+        )
+    elif(len(authentication) == 0):
+        request = urllib.request.Request(
         url,
         headers=headers
-    )
-
+        )
     try:
         response = urllib.request.urlopen(request)
-
         raw_data = response.readall().decode('utf-8')
         result = json.loads(raw_data)
     except Exception as e:

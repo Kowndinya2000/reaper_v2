@@ -8,12 +8,12 @@
         "password": "",
         "host": "localhost"
       },
-      "today": "2020-08-31",
+      "today": "2020-09-03",
       "timeout": "1H",
-      "user_name":"Kowndinya2000",
-      "github_tokens": [
-          ""
-      ]
+      "minimumDurationInMonths": "1",
+      "tokens":{
+        "Kowndinya2000":""
+      }
     }
   }
   

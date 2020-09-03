@@ -10,6 +10,7 @@ MAP = {
 
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: PROJECT_SIZE -----")
     threshold = options.get('threshold', 0)
 
     query = 'SELECT language FROM projects WHERE id = %d' % project_id
@@ -26,8 +27,7 @@ def run(project_id, repo_path, cursor, **options):
             rresult += sloc[language]['sloc']
 
     bresult = True if rresult >= threshold else False
-    print("----- METRIC: PROJECT_SIZE -----")
-    print('project_size: ',rresult,", ",bresult)
+    print('Size: ',rresult)
     return bresult, rresult
 
 if __name__ == '__main__':

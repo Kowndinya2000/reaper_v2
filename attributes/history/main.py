@@ -13,6 +13,7 @@ SELECT name FROM projects WHERE id={0}
 '''
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: HISTORY -----")
     avg_commits = 0
     num_commits = 0
     commitList = []
@@ -25,7 +26,7 @@ def run(project_id, repo_path, cursor, **options):
             os.chdir(repos)
             stream = inner_os.popen('git log --pretty=format:"%cd"').read().split("\n")
             num_commits = len(stream)
-            numberOfMonths = 0
+            numberOfMonths = -1
             if(num_commits > 1):
                 prev = stream[num_commits-1].split(" ")
                 Y1 = int(prev[4])
@@ -41,8 +42,7 @@ def run(project_id, repo_path, cursor, **options):
                     numberOfMonths += 1
                 if(numberOfMonths != 0):
                     avg_commits = float(num_commits)/(float(numberOfMonths)*1.0)
-                    print("----- METRIC: HISTORY -----")
-                    print('avgNumberOfCommunity:',avg_commits)
+                    print('Average Commits: ',avg_commits)
                     threshold = options['threshold']
                     return avg_commits >= threshold, avg_commits
                 else:

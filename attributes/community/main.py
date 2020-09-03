@@ -11,6 +11,7 @@ SELECT name FROM projects WHERE id={0}
 '''
 
 def run(project_id, repo_path, cursor, **options):
+    print("----- METRIC: COMMUNITY -----")
     num_core_contributors = 0
     num_commits = 0
     commitList = []
@@ -36,8 +37,7 @@ def run(project_id, repo_path, cursor, **options):
         aggregate += v
         if (aggregate / num_commits) >= cutoff:
             break
-    print("----- METRIC: COMMUNITY -----")
-    print('core contributors: ',num_core_contributors)
+    print('# of Core Contributors: ',num_core_contributors)
     threshold = options['threshold']
     num_core_contributors >= threshold, num_core_contributors
     return (num_core_contributors >= threshold, num_core_contributors)
